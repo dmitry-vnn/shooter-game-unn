@@ -1,41 +1,33 @@
 package me.xtopz.shooter.models;
 
 import javafx.geometry.VerticalDirection;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 import me.xtopz.shooter.models.geometry.Point;
 
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@RequiredArgsConstructor
 public class Animator {
+
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+
 
     private final double playgroundHeight;
     private final double playgroundWidth;
 
     private final Goal bigGoal;
     private final Goal smallGoal;
-    private final ExecutorService executorService;
 
     private boolean animationInProcess;
 
-    private long millisSinceAnimationStart = 0;
-    private long deltaMillisSinceArrowAnimationStart = 0;
+    private long millisSinceAnimationStart;
+    //private long deltaMillisSinceArrowAnimationStart;
 
-    private Arrow arrow;
+    private Map<Long, Arrow> arrows = new HashMap<>();
 
-    public Animator(double playgroundHeight, double playgroundWidth,
-                    Goal bigGoal, Goal smallGoal
-    ) {
-
-        this.playgroundHeight = playgroundHeight;
-        this.playgroundWidth = playgroundWidth;
-
-        this.bigGoal = bigGoal;
-        this.smallGoal = smallGoal;
-
-        executorService = Executors.newSingleThreadExecutor();
-        animationInProcess = false;
-    }
 
     public void play() {
         if (animationInProcess) {
@@ -54,12 +46,21 @@ public class Animator {
                     shiftGoalToOnePixel(smallGoal);
                 }
 
-                if (arrow != null) {
-                    val millisSinceArrowAnimationStart = millisSinceAnimationStart - deltaMillisSinceArrowAnimationStart;
+                val destroyedArrowsIds = new HashSet<Long>();
+
+                arrows.forEach((animationMillisSinceArrowStart, arrow) -> {
+                    val millisSinceArrowAnimationStart = millisSinceAnimationStart - animationMillisSinceArrowStart;
                     if (millisSinceArrowAnimationStart % (1000 / arrow.getPixelsPerSecondSpeed()) == 0) {
-                        shiftArrowToOnePixel();
+                        if (canMoveArrow(arrow)) {
+                            shiftArrowToOnePixel(arrow);
+                        } else {
+                            arrow.destroy();
+                            destroyedArrowsIds.add(animationMillisSinceArrowStart);
+                        }
                     }
-                }
+                });
+
+                destroyedArrowsIds.forEach(id -> arrows.remove(id));
 
                 try {
                     Thread.sleep(1);
@@ -72,31 +73,21 @@ public class Animator {
         });
     }
 
-    private void shiftArrowToOnePixel() {
+    private boolean canMoveArrow(Arrow arrow) {
         val lineShape = arrow.getLineShape();
-        if (pointInPlayground(lineShape.getStartPoint()) && pointInPlayground(lineShape.getEndPoint())) {
-            arrow.move(Point.of(1, 0));
-        } else {
-            arrow.destroy();
-            arrow = null;
-        }
+        return (pointInPlayground(lineShape.getStartPoint()) && pointInPlayground(lineShape.getEndPoint()));
+    }
+
+    private void shiftArrowToOnePixel(Arrow arrow) {
+        arrow.move(Point.of(1, 0));
     }
 
     public void pause() {
-        //CollisionDetector.instance.isIntersects(
-        //    bigGoal.getCircleShape(),
-        //    arrow.getLineShape()
-        //);
         animationInProcess = false;
     }
 
     public void animateArrow(Arrow arrow) {
-        if (this.arrow != null) {
-            throw new IllegalStateException("arrow is animated already");
-        }
-
-        this.arrow = arrow;
-        deltaMillisSinceArrowAnimationStart = millisSinceAnimationStart;
+        arrows.put(millisSinceAnimationStart, arrow);
     }
 
     private void shiftGoalToOnePixel(Goal goal) {
