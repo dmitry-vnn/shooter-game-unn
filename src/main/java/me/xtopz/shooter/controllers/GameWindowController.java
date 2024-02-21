@@ -26,8 +26,8 @@ public class GameWindowController {
 
     private Animator animator;
 
-    private Goal bigGoal;
-    private Goal smallGoal;
+    private Target bigTarget;
+    private Target smallTarget;
 
     private Scoreboard scoreboard;
 
@@ -36,10 +36,10 @@ public class GameWindowController {
 
         scoreboard = createScoreboard();
 
-        bigGoal = createGoal(bigCircle, 50, VerticalDirection.DOWN);
-        smallGoal = createGoal(smallCircle, 100, VerticalDirection.UP);
+        bigTarget = createGoal(bigCircle, 50, VerticalDirection.DOWN);
+        smallTarget = createGoal(smallCircle, 100, VerticalDirection.UP);
 
-        animator = new Animator(playground.getPrefHeight(), playground.getPrefWidth(), bigGoal, smallGoal);
+        animator = new Animator(playground.getPrefHeight(), playground.getPrefWidth(), bigTarget, smallTarget);
 
         animator.play();
     }
@@ -53,8 +53,8 @@ public class GameWindowController {
         return scoreboard;
     }
 
-    private Goal createGoal(Circle drawableCircle, int speed, VerticalDirection speedDirection) {
-        Goal goal = new Goal(
+    private Target createGoal(Circle drawableCircle, int speed, VerticalDirection speedDirection) {
+        Target target = new Target(
                 new CircleShape(
                         drawableCircle.getRadius(),
                         new Point(drawableCircle.getLayoutX(), drawableCircle.getLayoutY())
@@ -63,13 +63,13 @@ public class GameWindowController {
                 speedDirection
         );
 
-        goal.addObserver(event -> Platform.runLater(() -> {
+        target.addObserver(event -> Platform.runLater(() -> {
             val center = event.getNewValue();
             drawableCircle.setLayoutX(center.getX());
             drawableCircle.setLayoutY(center.getY());
         }));
 
-        return goal;
+        return target;
     }
 
 
@@ -87,11 +87,11 @@ public class GameWindowController {
     public void onShootButtonClick() {
         val arrow = createArrow(10, 250);
 
-        val bigGoalCollisionDetector = new CollisionDetector(arrow, bigGoal);
+        val bigGoalCollisionDetector = new CollisionDetector(arrow, bigTarget);
 
         bigGoalCollisionDetector.addCollisionDetectObserver(event -> scoreboard.addScore(1));
 
-        val smallGoalCollisionDetector = new CollisionDetector(arrow, smallGoal);
+        val smallGoalCollisionDetector = new CollisionDetector(arrow, smallTarget);
 
         smallGoalCollisionDetector.addCollisionDetectObserver(evt -> scoreboard.addScore(2));
 

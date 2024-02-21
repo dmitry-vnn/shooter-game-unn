@@ -12,7 +12,7 @@ import me.xtopz.shooter.observer.GenericPropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 @Getter
-public class Goal {
+public class Target {
 
     @Getter(value = AccessLevel.NONE)
     private final PropertyChangeSupport propertyChangeSupport;
@@ -22,7 +22,7 @@ public class Goal {
 
     private VerticalDirection speedDirection;
 
-    public Goal(CircleShape circleShape, int pixelsPerSecondSpeed, VerticalDirection speedDirection) {
+    public Target(CircleShape circleShape, int pixelsPerSecondSpeed, VerticalDirection speedDirection) {
         this.circleShape = circleShape;
 
         this.pixelsPerSecondSpeed = pixelsPerSecondSpeed;

@@ -16,14 +16,14 @@ public class CollisionDetector {
     private PropertyChangeSupport propertyChangeSupport;
 
     private final Arrow arrow;
-    private final Goal goal;
+    private final Target target;
 
     private boolean isArrowIntersectsWithGoalOnce;
 
-    public CollisionDetector(Arrow arrow, Goal goal) {
+    public CollisionDetector(Arrow arrow, Target target) {
 
         this.arrow = arrow;
-        this.goal = goal;
+        this.target = target;
 
         propertyChangeSupport = new PropertyChangeSupport(this);
 
@@ -35,7 +35,7 @@ public class CollisionDetector {
     }
 
     private void onArrowMoveListener(LineShape arrowPosition) {
-        if (!isArrowIntersectsWithGoalOnce && isIntersects(goal.getCircleShape(), arrowPosition)) {
+        if (!isArrowIntersectsWithGoalOnce && isIntersects(target.getCircleShape(), arrowPosition)) {
             isArrowIntersectsWithGoalOnce = true;
             notifyObservers();
         }

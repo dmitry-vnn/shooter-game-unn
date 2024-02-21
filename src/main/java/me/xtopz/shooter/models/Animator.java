@@ -18,8 +18,8 @@ public class Animator {
     private final double playgroundHeight;
     private final double playgroundWidth;
 
-    private final Goal bigGoal;
-    private final Goal smallGoal;
+    private final Target bigTarget;
+    private final Target smallTarget;
 
     private boolean animationInProcess;
 
@@ -38,12 +38,12 @@ public class Animator {
         executorService.submit(() -> {
 
             while (animationInProcess) {
-                if (millisSinceAnimationStart % (1000 / bigGoal.getPixelsPerSecondSpeed()) == 0) {
-                    shiftGoalToOnePixel(bigGoal);
+                if (millisSinceAnimationStart % (1000 / bigTarget.getPixelsPerSecondSpeed()) == 0) {
+                    shiftGoalToOnePixel(bigTarget);
                 }
 
-                if (millisSinceAnimationStart % (1000 / smallGoal.getPixelsPerSecondSpeed()) == 0) {
-                    shiftGoalToOnePixel(smallGoal);
+                if (millisSinceAnimationStart % (1000 / smallTarget.getPixelsPerSecondSpeed()) == 0) {
+                    shiftGoalToOnePixel(smallTarget);
                 }
 
                 val destroyedArrowsIds = new HashSet<Long>();
@@ -90,22 +90,22 @@ public class Animator {
         arrows.put(millisSinceAnimationStart, arrow);
     }
 
-    private void shiftGoalToOnePixel(Goal goal) {
-        val center = goal.getCircleShape().getCenter();
+    private void shiftGoalToOnePixel(Target target) {
+        val center = target.getCircleShape().getCenter();
 
-        val dy = goal.getSpeedDirection() == VerticalDirection.DOWN ? 1 : -1;
+        val dy = target.getSpeedDirection() == VerticalDirection.DOWN ? 1 : -1;
 
         var probablyNewCenter = center.add(0, dy);
 
-        val r = goal.getCircleShape().getRadius();
+        val r = target.getCircleShape().getRadius();
 
         if (!(pointInPlayground(probablyNewCenter.add(0, r)) &&
                 pointInPlayground(probablyNewCenter.add(0, -r)))) {
             probablyNewCenter = center.add(0, -dy);
-            goal.revertSpeedDirection();
+            target.revertSpeedDirection();
         }
 
-        goal.setCircleShapeCenter(probablyNewCenter);
+        target.setCircleShapeCenter(probablyNewCenter);
 
     }
 
