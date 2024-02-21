@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.VerticalDirection;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import lombok.val;
@@ -12,6 +13,8 @@ import me.xtopz.shooter.models.*;
 import me.xtopz.shooter.models.geometry.CircleShape;
 import me.xtopz.shooter.models.geometry.LineShape;
 import me.xtopz.shooter.models.geometry.Point;
+
+import static java.lang.Math.random;
 
 public class GameWindowController {
 
@@ -85,7 +88,7 @@ public class GameWindowController {
 
     @FXML
     public void onShootButtonClick() {
-        val arrow = createArrow(10, 250);
+        val arrow = createArrow(5, 250);
 
         val bigGoalCollisionDetector = new CollisionDetector(arrow, bigTarget);
 
@@ -105,6 +108,9 @@ public class GameWindowController {
         val endPoint = Point.of(width, startPoint.getY());
 
         val drawableLine = new Line(startPoint.getX(), startPoint.getY(), endPoint.getX(), endPoint.getY());
+
+        drawableLine.setStroke(Color.color(random(), random(), random()));
+
         playground.getChildren().add(drawableLine);
 
         val arrow = new Arrow(new LineShape(startPoint, endPoint), speed);
